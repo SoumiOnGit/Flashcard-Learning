@@ -5,3 +5,5 @@
 -   Create a basic db model and make sure tables are created in db 
 #  Step 3 -
 -  Signup and Login funnctionality  , add required relationship 
+# Step 4 -
+- Create a default user and add 2 decks and 4 cards in each decks

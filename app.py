@@ -5,7 +5,7 @@ from datetime import datetime
 import os
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///flashcard.db'
 db = SQLAlchemy(app)
 
 @app.route('/')
@@ -18,7 +18,6 @@ class User(db.Model):
         username = db.Column(db.String(200), nullable = False)
         email = db.Column(db.String(200), nullable = False)
         password = db.Column(db.String(200), nullable = False)
-        user_decks = relationship('Deck', backref='user_owner', lazy=True)
 
     
         def __repr__(self):
@@ -29,9 +28,12 @@ class Deck(db.Model):
         name = db.Column(db.String(200), nullable = False)
         last_reviewed = db.Column(db.DateTime , default = datetime.now())
         deck_score = db.Column(db.Integer, nullable = False)
-        cards = relationship('Card', backref='deck', lazy=True)
+        cards = relationship('Card')
         user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-        deck_user = relationship('User', backref='decks_owned', lazy=True)
+        deck_user = relationship('User', overlaps="user_decks")
+
+
+
 
 class Card(db.Model):
         id = db.Column(db.Integer, primary_key = True, autoincrement=True)
@@ -39,15 +41,40 @@ class Card(db.Model):
         back = db.Column(db.String(200), nullable = False)
         card_score = db.Column(db.Integer, nullable = False , default = 0)
         last_reviewed = db.Column(db.DateTime , default = datetime.now())
-        deck_id = db.Column(db.Integer, db.ForeignKey('deck.id'), nullable=False) 
-        card_deck = relationship('Deck', backref='cards_in_deck', lazy=True)
+        deck_id = db.Column(db.Integer, db.ForeignKey('deck.id'), nullable=False)
+        card_deck = relationship('Deck', overlaps="cards")
 
-
-
-if not os.path.exists("./test.db"):
+if not os.path.exists("./instance/flashcard.db"):
     with app.app_context():
             db.create_all()
-            
+            Users = User.query.all()
+            print(Users)
+            if not Users:
+                print("No Users")
+                U1 = User(username = "demo", email = "demo@demo.com", password = "demo")
+                db.session.add(U1)
+                D1 = Deck(name = "demo_deck1", last_reviewed = datetime.now(), deck_score = 0, user_id = 1)
+                D2 = Deck(name = "demo_deck2", last_reviewed = datetime.now(), deck_score = 0, user_id = 1)
+                C1 = Card(front = "demo_front1", back = "demo_back1", card_score = 0, last_reviewed = datetime.now(), deck_id = 1)
+                C2 = Card(front = "demo_front2", back = "demo_back2", card_score = 0, last_reviewed = datetime.now(), deck_id = 1)
+                C3 = Card(front = "demo_front3", back = "demo_back3", card_score = 0, last_reviewed = datetime.now(), deck_id = 1)
+                C4 = Card(front = "demo_front4", back = "demo_back4", card_score = 0, last_reviewed = datetime.now(), deck_id = 1)
+                C5 = Card(front = "demo_front5", back = "demo_back5", card_score = 0, last_reviewed = datetime.now(), deck_id = 2)
+                C6 = Card(front = "demo_front6", back = "demo_back6", card_score = 0, last_reviewed = datetime.now(), deck_id = 2)
+                C7 = Card(front = "demo_front7", back = "demo_back7", card_score = 0, last_reviewed = datetime.now(), deck_id = 2)
+                C8 = Card(front = "demo_front8", back = "demo_back8", card_score = 0, last_reviewed = datetime.now(), deck_id = 2)
+                db.session.add(D1)
+                db.session.add(D2)
+                db.session.add(C1)
+                db.session.add(C2)
+                db.session.add(C3)
+                db.session.add(C3)
+                db.session.add(C4)
+                db.session.add(C5)
+                db.session.add(C6)
+                db.session.add(C7) 
+                db.session.add(C8)
+                db.session.commit()            
 
 @app.route('/signup',methods =['GET', 'POST'])
 def signup():
