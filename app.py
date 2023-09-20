@@ -27,7 +27,7 @@ class Deck(db.Model):
         name = db.Column(db.String(200), nullable = False)
         last_reviewed = db.Column(db.DateTime , default = datetime.now())
         deck_score = db.Column(db.Integer, nullable = False)
-        cards = relationship('Card')
+        cards = relationship('Card' , cascade="all, delete-orphan")
         user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
         deck_user = relationship('User', overlaps="user_decks")
 
@@ -38,7 +38,7 @@ class Card(db.Model):
         card_score = db.Column(db.Integer, nullable = False , default = 0)
         last_reviewed = db.Column(db.DateTime , default = datetime.now())
         deck_id = db.Column(db.Integer, db.ForeignKey('deck.id'), nullable=False)
-        card_deck = relationship('Deck', overlaps="cards")
+        card_deck = relationship('Deck', overlaps="cards" )
 
 if not os.path.exists("./instance/flashcard.db"):
     with app.app_context():
@@ -116,6 +116,50 @@ def user_dashboard(user_id):
      print(user.user_decks)
      return render_template('user_dashboard.html', user = user)
 
+@app.route('/update_deck/<int:deck_id>', methods=['GET', 'POST'])
+def update_deck(deck_id):
+    deck = Deck.query.get_or_404(deck_id)
+    if request.method == 'POST':
+        deck.name = request.form['deck_name']
+        deck.last_reviewed = datetime.now()
+        try:
+            db.session.add(deck)
+            db.session.commit()
+            return redirect(f'/user_dashboard/{deck.deck_user.id}')
+        except:
+            return 'There was an issue updating deck'
+    return render_template('update_deck.html', deck = deck)
+
+@app.route('/add_deck/<int:user_id>', methods=['GET', 'POST'])
+def add_deck(user_id):
+    user = User.query.get_or_404(user_id)
+    if request.method == 'POST':
+        print(request.form)
+        print("gokul")
+        deck_name = request.form['deck_name']
+        deck = Deck(name = deck_name, last_reviewed = datetime.now(), deck_score = 0, user_id = user_id)
+        try:
+            db.session.add(deck)
+            db.session.commit()
+            return redirect(f'/user_dashboard/{user_id}')
+        except:
+            return 'There was an issue adding new deck'
+        
+    return render_template('add_deck.html', user = user )
+
+@app.route('/delete_deck/<int:deck_id>' )
+def delete_deck(deck_id):
+    deck = Deck.query.get_or_404(deck_id)
+    user_id = deck.deck_user.id
+    print(user_id)
+    try:
+        db.session.delete(deck)
+        db.session.commit()
+        return redirect(f'/user_dashboard/{deck.deck_user.id}')
+    except Exception as e:
+        print(e)
+        return 'There was an issue deleting deck'
+    
 
 if __name__ == '__main__':
     
