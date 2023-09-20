@@ -18,8 +18,7 @@ class User(db.Model):
         username = db.Column(db.String(200), nullable = False)
         email = db.Column(db.String(200), nullable = False)
         password = db.Column(db.String(200), nullable = False)
-
-    
+        user_decks = relationship('Deck')
         def __repr__(self):
             return '<User %r>' % self.username
 
@@ -31,9 +30,6 @@ class Deck(db.Model):
         cards = relationship('Card')
         user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
         deck_user = relationship('User', overlaps="user_decks")
-
-
-
 
 class Card(db.Model):
         id = db.Column(db.Integer, primary_key = True, autoincrement=True)
@@ -55,6 +51,9 @@ if not os.path.exists("./instance/flashcard.db"):
                 db.session.add(U1)
                 D1 = Deck(name = "demo_deck1", last_reviewed = datetime.now(), deck_score = 0, user_id = 1)
                 D2 = Deck(name = "demo_deck2", last_reviewed = datetime.now(), deck_score = 0, user_id = 1)
+                D3 = Deck(name = "demo_deck3", last_reviewed = datetime.now(), deck_score = 0, user_id = 1)
+                D4 = Deck(name = "demo_deck4", last_reviewed = datetime.now(), deck_score = 0, user_id = 1)
+                D5 = Deck(name = "demo_deck5", last_reviewed = datetime.now(), deck_score = 0, user_id = 1)
                 C1 = Card(front = "demo_front1", back = "demo_back1", card_score = 0, last_reviewed = datetime.now(), deck_id = 1)
                 C2 = Card(front = "demo_front2", back = "demo_back2", card_score = 0, last_reviewed = datetime.now(), deck_id = 1)
                 C3 = Card(front = "demo_front3", back = "demo_back3", card_score = 0, last_reviewed = datetime.now(), deck_id = 1)
@@ -65,6 +64,9 @@ if not os.path.exists("./instance/flashcard.db"):
                 C8 = Card(front = "demo_front8", back = "demo_back8", card_score = 0, last_reviewed = datetime.now(), deck_id = 2)
                 db.session.add(D1)
                 db.session.add(D2)
+                db.session.add(D3)
+                db.session.add(D4)
+                db.session.add(D5)
                 db.session.add(C1)
                 db.session.add(C2)
                 db.session.add(C3)
@@ -111,6 +113,7 @@ def login():
 @app.route('/user_dashboard/<int:user_id>', methods=['GET'])
 def user_dashboard(user_id):
      user = User.query.get_or_404(user_id)
+     print(user.user_decks)
      return render_template('user_dashboard.html', user = user)
 
 
