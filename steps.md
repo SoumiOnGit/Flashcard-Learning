@@ -3,3 +3,5 @@
 
 # Step 2 -
 -   Create a basic db model and make sure tables are created in db 
+#  Step 3 -
+-  Signup and Login funnctionality  , add required relationship 
