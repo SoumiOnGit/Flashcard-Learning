@@ -160,6 +160,12 @@ def delete_deck(deck_id):
         print(e)
         return 'There was an issue deleting deck'
     
+@app.route('/review_deck/<int:deck_id>')
+
+def review_deck(deck_id):
+     deck = Deck.query.get_or_404(deck_id)
+     return render_template('review_deck.html' , deck = deck)
+
 
 if __name__ == '__main__':
     

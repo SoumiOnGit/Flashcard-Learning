@@ -74,7 +74,7 @@
         &nbsp <a href="/add_deck/{{ user.id }}"> Add Deck</a> <br>
         {% for deck in user.user_decks %}
         <div class="card">
-            <h3>{{ deck.name }}</h3>
+            <h3>{{ deck.name }}- {{deck.cards | length}}</h3>
             <p>Last Reviewed: {{ deck.last_reviewed }}</p>
             <p>Deck Score: {{ deck.deck_score }}</p>
             <a href="/update_deck/{{ deck.id }}">Update Deck</a>
